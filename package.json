@@ -5,23 +5,27 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node ./index.js",
-    "start:dev": "nodemon ./index.js",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
-    "lint": "eslint \"**/*.{ts,tsx,js,jsx}\""
+    "start": "node ./index.ts",
+    "start:dev": "nodemon ./index.ts",
+    "format": "prettier --write \"./src/**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
+    "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "eslint \"./src/**/*.{js,jsx,ts,tsx}\" --fix"
   },
   "author": "Artem Zhiznevski",
   "keywords": [],
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@types/ws": "^8.18.1",
     "dotenv": "^17.2.1",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
+    "jiti": "^2.6.1",
     "nodemon": "^3.1.10",
     "prettier": "3.6.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0"
   },
