@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "description": "Template for the WebSocket remote control task",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "start": "node ./index.ts",
-    "start:dev": "nodemon ./index.ts",
+    "start": "nodemon src/index.ts",
     "format": "prettier --write \"./src/**/*.{ts,tsx,js,jsx,json,yml,yaml,md}\"",
     "lint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "eslint \"./src/**/*.{js,jsx,ts,tsx}\" --fix"
@@ -30,6 +28,7 @@
     "typescript-eslint": "^8.39.0"
   },
   "dependencies": {
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "uuid": "^11.1.0"
   }
 }

@@ -2,8 +2,6 @@
   "compilerOptions": {
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
     "esModuleInterop": true,
     "lib": ["ESNext"],
     "module": "CommonJS",
