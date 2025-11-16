@@ -6,6 +6,7 @@ import { Client } from '../types/client';
 import { isJSON } from '../utils/isJson';
 import { playerControllers } from '../controllers/playerControllers';
 import { gameControllers } from '../controllers/gameControllers';
+import { winnersControllers } from '../controllers/winnersControllers';
 
 const PORT = 3000;
 
@@ -31,6 +32,7 @@ export const wsServer = (port: number) => {
           case MESSAGE_TYPES_MAP.REGISTER: {
             await playerControllers.addPlayer(ws, data);
             await roomControllers.updateRoom(clients);
+            await winnersControllers.getWinners(clients);
             break;
           }
           case MESSAGE_TYPES_MAP.CREATE_ROOM: {
