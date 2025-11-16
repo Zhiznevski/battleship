@@ -6,7 +6,7 @@ const players: Player[] = [];
 export interface IPlayersRepository {
   getPlayers(): Player[];
   getPlayerById(index: string): Player | undefined;
-  addPlayer(data: Player): Player;
+  addPlayer(data: Player): Omit<Player, "password">;
   deletePlayer(index: string): void;
 }
 
@@ -24,14 +24,14 @@ class PlayersRepository implements IPlayersRepository {
     return this.players.find((player) => player.index === index);
   }
 
-  addPlayer(data: Player): Player {
+  addPlayer(data: Player) {
     const player = {
       name: data.name,
       password: data.password,
       index: data.index,
     };
     this.players.push(player);
-    return player;
+    return { name: player.name, index: player.index };
   }
 
   deletePlayer(index: string) {

@@ -4,30 +4,40 @@ import { Room, RoomUser } from '../model/room';
 const rooms: Room[] = [];
 
 class RoomsRepository {
-    rooms;
-    constructor(rooms: Room[]) {
-        this.rooms = rooms;
-    }
+  rooms;
+  constructor(rooms: Room[]) {
+    this.rooms = rooms;
+  }
 
-    getRooms() {
-        return this.rooms;
-    }
+  getRooms() {
+    return this.rooms;
+  }
 
-    createRoom() {
-        const room = { roomId: generateId(), roomUsers: [] };
-        this.rooms.push(room);
-        return room;
-    }
+  getRoomById(id: string) {
+    return this.rooms.find((room) => room.roomId === id);
+  }
 
-    deleteRoom(roomId: string) {
-        const roomIndex = this.rooms.findIndex((room) => roomId === room.roomId);
-        this.rooms.splice(roomIndex, 1);
-    }
+  createRoom() {
+    const room = { roomId: generateId(), roomUsers: [] };
+    this.rooms.push(room);
+    return room;
+  }
 
-    addPlayerToRoom(user: RoomUser, roomId: string) {
-        const roomIndex = this.rooms.findIndex((room) => roomId === room.roomId);
-        this.rooms[roomIndex]?.roomUsers?.push(user);
-    }
+  deleteRoom(roomId: string) {
+    const roomIndex = this.rooms.findIndex((room) => roomId === room.roomId);
+    this.rooms.splice(roomIndex, 1);
+  }
+
+  addPlayerToRoom(user: RoomUser, roomId: string) {
+    const roomIndex = this.rooms.findIndex((room) => roomId === room.roomId);
+    this.rooms[roomIndex]?.roomUsers?.push(user);
+  }
+
+  getPlayersIds(roomId: string) {
+    const room = this.getRoomById(roomId)
+    if (!room) return;
+    return room.roomUsers.map(el => el.index);
+  }
 }
 
 export const roomsRepository = new RoomsRepository(rooms);

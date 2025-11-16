@@ -22,6 +22,11 @@ const addPlayer = async (ws: Client, data: unknown) => {
   ws.send(prepareMessage(MESSAGE_TYPES_MAP.REGISTER, createdPlayer));
 };
 
+const removePlayer = async (ws: Client) => {
+  playersRepository.deletePlayer(ws.id);
+};
+
 export const playerControllers = {
   addPlayer,
+  removePlayer,
 };
