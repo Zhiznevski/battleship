@@ -1,33 +1,45 @@
 import { v4 as generateId } from 'uuid';
-import { Player, PlayerDTO } from "../model/player";
+import { Player, PlayerDTO } from '../model/player';
 
 const players: Player[] = [];
 
+export interface IPlayersRepository {
+  getPlayers(): Player[];
+  getPlayerById(index: string): Player | undefined;
+  addPlayer(data: Player): Player;
+  deletePlayer(index: string): void;
+}
 
-class PlayersRepository {
-    players;
-    constructor(players: Player[]) {
-        this.players = players;
-    }
+class PlayersRepository implements IPlayersRepository {
+  players;
+  constructor(players: Player[]) {
+    this.players = players;
+  }
 
-    getPlayers() {
-        return this.players;
-    }
+  getPlayers() {
+    return this.players;
+  }
 
-    getPlayerById(index: string) {
-        return this.players.find(player => player.index === index)
-    }
+  getPlayerById(index: string) {
+    return this.players.find((player) => player.index === index);
+  }
 
-    addPlayer(data: PlayerDTO): Player {
-        const player = { name: data.name, password: data.password, index: generateId() }
-        this.players.push(player)
-        return player;
-    }
+  addPlayer(data: Player): Player {
+    const player = {
+      name: data.name,
+      password: data.password,
+      index: data.index,
+    };
+    this.players.push(player);
+    return player;
+  }
 
-    deletePlayer(index: string) {
-        const playerIndex = this.players.findIndex((player) => player.index === index);
-        this.players.splice(playerIndex, 1);
-    }
+  deletePlayer(index: string) {
+    const playerIndex = this.players.findIndex(
+      (player) => player.index === index,
+    );
+    this.players.splice(playerIndex, 1);
+  }
 }
 
 export const playersRepository = new PlayersRepository(players);

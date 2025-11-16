@@ -1,55 +1,63 @@
 import WebSocket, { WebSocketServer } from 'ws';
-import { messageSet } from '../consts/messages';
+import { v4 as generateId } from 'uuid';
+import { MESSAGE_TYPES_MAP, messageSet } from '../consts/messages';
+import { roomControllers } from '../controllers/roomsControllers';
+import { Client } from '../types/client';
+import { isJSON } from '../utils/isJson';
 import { playerControllers } from '../controllers/playerControllers';
 
 const PORT = 3000;
 
-const wss = new WebSocketServer({ port: 3000 });
-wss.clients
+// wss.clients
 
 /*
-    1. Получаем объект - { name: "Artem" }. Тут важно то что в данных у нас будет type -> то есть мы проверяем тайп и сначала в зависимости от него идем дальше
-    2. !С помощью функции хэлпера нам нужно провалидировать поля этого объекта - identifyResponse({ name: "Artem" }) --------- у нас данные ведь с фронта отправляются уже, можем не валидировать пока что
-    3. пр. хэлпера - data?.name и type data.name === "string" => записываем это имя в массив или куда-то еще
-    4. Таким образом можно валидировать дальше и не только поля но и значения ( например валидация пароля и тд по необходимости)
-    5. Нужно написать свой валидатор данных ( типо Zod ), принцип я описал выше, в случае невалидных данных выбрасываем ошибки или возвращаем объект ошибки где указываем поле
-    6. Полезные абстракции - сохранить массив ошибок после валидации
-    7. Уточнить какие бывают вообще типы ошибок и в каком виде их отправлять
-    8. Мы храним данные только об игроках, остальные данные насквозь проходят, верно ведь?
+    1. Мы храним данные только об игроках, остальные данные насквозь проходят, верно ведь?  - Нет, храним все
 
 */
-type Client = WebSocket;
+
 let clients: Client[] = [];
 
+export const wsServer = (port: number) => {
+    const wss = new WebSocketServer({ port: port });
 
-wss.on('connection', function handleConnection(ws) {
-    console.log(`ws server is started on port ${PORT}`)
-    clients.push(ws);
+    wss.on('connection', function handleConnection(ws: Client) {
+        console.log(`ws server is started on port ${PORT}`);
+        ws.id = generateId();
+        clients.push(ws);
 
-    ws.on('error', console.error);
+        ws.on('error', console.error);
 
-    ws.on('message', function handleMessage(rowData) {
-        try {
-            console.log('received: %s', rowData);
-            const msg = JSON.parse(rowData.toString())
-            const data = JSON.parse(msg.data)
-            if (!msg.type || !messageSet.has(msg.type)) return; //TODO: handle this error and check ТЗ;
-            switch (msg.type) {
-                case "reg": {
-                    playerControllers.addPlayer(ws, data)
+        ws.on('message', async function handleMessage(rowData) {
+            try {
+                const msg = JSON.parse(rowData.toString());
+                console.log('received', msg);
+                const data = isJSON(msg.data) && JSON.parse(msg.data);
+                if (!msg.type || !messageSet.has(msg.type)) return; //TODO: handle this error and check ТЗ;
+                switch (msg.type) {
+                    case MESSAGE_TYPES_MAP.REGISTER: {
+                        await playerControllers.addPlayer(ws, data);
+                        await roomControllers.updateRoom(ws);
+                    }
+                    case MESSAGE_TYPES_MAP.CREATE_ROOM: {
+                        console.log('мы тут');
+                        await roomControllers.createRoom(ws);
+                    }
+
+                    case MESSAGE_TYPES_MAP.ADD_USER_TO_ROOM: {
+                        const indexRoom = await roomControllers.addPlayerToRoom(ws, data);
+                        if (!indexRoom) return;
+                        await roomControllers.removeRoom(indexRoom);
+                    }
                 }
+            } catch (e) {
+                console.error(e);
             }
+        });
 
-        }
-        catch (e) {
-            console.error(e)
-        }
-
+        ws.on('close', () => {
+            clients = clients.filter((client) => client !== ws); // TODO: check if it ok
+            console.log('Client disconnected');
+            console.log(clients); // TODO: check if client is removed
+        });
     });
-
-    ws.on('close', () => {
-        clients = clients.filter(client => client !== ws); // TODO: check if it ok
-        console.log('Client disconnected');
-        console.log(clients) // TODO: check if client is removed
-    });
-});
+};
