@@ -110,8 +110,8 @@ const attack = async (clients: Client[], data: unknown) => {
 
     const winnerName = playersRepository.getPlayerById(winner)?.name;
     if (!winnerName) return;
-    winnersControllers.addWinner(winner, winnerName);
-    winnersControllers.getWinners(clients);
+    await winnersControllers.addWinner(winner, winnerName);
+    await winnersControllers.getWinners(clients);
     return;
   }
   const currentTurn = gamesRepository.getCurrentTurn(game.gameId);
@@ -158,7 +158,7 @@ const randomAttack = async (clients: Client[], data: unknown) => {
         prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
           status: 'miss',
           position: miss,
-          winPlayer: winner,
+          currentPlayer: indexPlayer,
         }),
       );
     });
@@ -176,8 +176,8 @@ const randomAttack = async (clients: Client[], data: unknown) => {
     });
     const winnerName = playersRepository.getPlayerById(winner)?.name;
     if (!winnerName) return;
-    winnersControllers.addWinner(winner, winnerName);
-    winnersControllers.getWinners(clients);
+    await winnersControllers.addWinner(winner, winnerName);
+    await winnersControllers.getWinners(clients);
     return;
   }
 
