@@ -34,9 +34,9 @@ class RoomsRepository {
   }
 
   getPlayersIds(roomId: string) {
-    const room = this.getRoomById(roomId)
+    const room = this.getRoomById(roomId);
     if (!room) return;
-    return room.roomUsers.map(el => el.index);
+    return room.roomUsers.map((el) => el.index);
   }
 }
 

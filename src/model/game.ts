@@ -1,23 +1,21 @@
-
 type GamePlayer = {
-  playerId: string,
-  ships?: Ship[],
-}
+  playerId: string;
+  ships?: Ship[];
+};
 export type Game = {
   gameId: string;
-  players: GamePlayer[],
-  currentTurn?: string,
+  players: GamePlayer[];
+  currentTurn?: string;
 };
-
 
 export type Ship = {
   position: {
-    x: number,
-    y: number,
-  },
-  direction: boolean,
-  length: number,
-  type: "small" | "medium" | "large" | "huge",
-  cells: { x: number, y: number }[]
-  hits: { x: number, y: number }[] // 'x_y'
-}
+    x: number;
+    y: number;
+  };
+  direction: boolean;
+  length: number;
+  type: 'small' | 'medium' | 'large' | 'huge';
+  cells: { x: number; y: number }[];
+  hits: { x: number; y: number }[]; // 'x_y'
+};

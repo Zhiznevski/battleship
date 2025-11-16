@@ -1,23 +1,23 @@
-import { MESSAGE_TYPES_MAP } from "../consts/messages";
-import { gamesRepository } from "../db/games";
-import { roomsRepository } from "../db/rooms";
-import { Ship } from "../model/game";
-import { Client } from "../types/client";
-import { prepareMessage } from "../utils/prepareMessage";
+import { MESSAGE_TYPES_MAP } from '../consts/messages';
+import { gamesRepository } from '../db/games';
+import { roomsRepository } from '../db/rooms';
+import { Ship } from '../model/game';
+import { Client } from '../types/client';
+import { prepareMessage } from '../utils/prepareMessage';
 
 const createGame = async (clients: Client[], indexRoom: string) => {
-  const playersIds = roomsRepository.getPlayersIds(indexRoom)
+  const playersIds = roomsRepository.getPlayersIds(indexRoom);
   if (!playersIds) return;
-  const game = gamesRepository.createGame(playersIds)
-  playersIds?.forEach(playerId => {
-    const client = clients.find(c => c.id === playerId);
+  const game = gamesRepository.createGame(playersIds);
+  playersIds?.forEach((playerId) => {
+    const client = clients.find((c) => c.id === playerId);
     if (!client) return;
 
     client.send(
       prepareMessage(MESSAGE_TYPES_MAP.CREATE_GAME, {
         idGame: game.gameId,
-        idPlayer: client.id
-      })
+        idPlayer: client.id,
+      }),
     );
   });
 };
@@ -29,83 +29,85 @@ const addShips = async (clients: Client[], data: unknown) => {
     indexPlayer: string;
   };
 
-  const game = gamesRepository.addShips(gameId, indexPlayer, ships)
+  const game = gamesRepository.addShips(gameId, indexPlayer, ships);
   if (!game) return;
   if (!gamesRepository.isGameReady(gameId)) return;
 
-  game.players.forEach(player => {
-    const client = clients.find(c => c.id === player.playerId);
+  game.players.forEach((player) => {
+    const client = clients.find((c) => c.id === player.playerId);
     if (!client) return;
-    client.send(prepareMessage(MESSAGE_TYPES_MAP.START_GAME, {
-      ships: player.ships,
-      currentPlayerIndex: player.playerId
-    }))
-  })
+    client.send(
+      prepareMessage(MESSAGE_TYPES_MAP.START_GAME, {
+        ships: player.ships,
+        currentPlayerIndex: player.playerId,
+      }),
+    );
+  });
 
-  const currentTurn = gamesRepository.getRandomTurn(game.gameId)
+  const currentTurn = gamesRepository.getRandomTurn(game.gameId);
 
-  game.players.forEach(player => {
-    const client = clients.find(c => c.id === player.playerId);
+  game.players.forEach((player) => {
+    const client = clients.find((c) => c.id === player.playerId);
     if (!client) return;
     client.send(
       prepareMessage(MESSAGE_TYPES_MAP.TURN, {
         currentPlayer: currentTurn,
-      })
+      }),
     );
   });
-}
+};
 
 const attack = async (clients: Client[], data: unknown) => {
-
   const { gameId, indexPlayer, x, y } = data as {
     gameId: string;
-    x: number,
-    y: number,
+    x: number;
+    y: number;
     indexPlayer: string;
   };
 
   const game = gamesRepository.getGameById(gameId);
   if (!game) return;
 
-  const attackResult = gamesRepository.attack(gameId, indexPlayer, x, y)
+  const attackResult = gamesRepository.attack(gameId, indexPlayer, x, y);
   if (!attackResult) return;
-  const { currentPlayer, position, status, misses } = attackResult
+  const { position, status, misses } = attackResult;
 
-  game.players.forEach(player => {
-    const client = clients.find(c => c.id === player.playerId);
+  game.players.forEach((player) => {
+    const client = clients.find((c) => c.id === player.playerId);
     if (!client) return;
-    client.send(prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
-      position: position,
-      currentPlayer: currentPlayer,
-      status: status
-    }))
+    client.send(
+      prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
+        position: position,
+        currentPlayer: indexPlayer,
+        status: status,
+      }),
+    );
 
     if (!misses?.length) return;
 
-    misses.forEach(miss => {
-      client.send(prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
-        status: "miss",
-        position: miss,
-        currentPlayer: currentPlayer,
-      }))
-    })
-  })
+    misses.forEach((miss) => {
+      client.send(
+        prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
+          status: 'miss',
+          position: miss,
+          currentPlayer: indexPlayer,
+        }),
+      );
+    });
+  });
 
   const currentTurn = gamesRepository.getCurrentTurn(game.gameId);
 
-  game.players.forEach(player => {
-    const client = clients.find(c => c.id === player.playerId);
+  game.players.forEach((player) => {
+    const client = clients.find((c) => c.id === player.playerId);
     if (!client) return;
     client.send(
       prepareMessage(MESSAGE_TYPES_MAP.TURN, {
         currentPlayer: currentTurn,
-      })
+      }),
     );
   });
-
-
-}
-
+};
 
 export const gameControllers = {
   createGame,

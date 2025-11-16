@@ -1,4 +1,4 @@
-import WebSocket, { WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import { v4 as generateId } from 'uuid';
 import { MESSAGE_TYPES_MAP, messageSet } from '../consts/messages';
 import { roomControllers } from '../controllers/roomsControllers';
@@ -44,12 +44,12 @@ export const wsServer = (port: number) => {
           }
 
           case MESSAGE_TYPES_MAP.ADD_SHIPS: {
-            await gameControllers.addShips(clients, data)
+            await gameControllers.addShips(clients, data);
             break;
           }
 
           case MESSAGE_TYPES_MAP.ATTACK: {
-            await gameControllers.attack(clients, data)
+            await gameControllers.attack(clients, data);
             break;
           }
         }

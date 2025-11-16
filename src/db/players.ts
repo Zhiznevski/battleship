@@ -6,7 +6,7 @@ const players: Player[] = [];
 export interface IPlayersRepository {
   getPlayers(): Player[];
   getPlayerById(index: string): Player | undefined;
-  addPlayer(data: Player): Omit<Player, "password">;
+  addPlayer(data: Player): Omit<Player, 'password'>;
   deletePlayer(index: string): void;
 }
 
