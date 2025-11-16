@@ -64,9 +64,9 @@ export const wsServer = (port: number) => {
 
     ws.on('close', () => {
       clients = clients.filter((client) => client !== ws);
-      playerControllers.removePlayer(ws); // TODO: check if it ok
+      playerControllers.removePlayer(ws);
       console.log('Client disconnected');
-      console.log(clients); // TODO: check if client is removed
+      console.log(clients);
     });
   });
 };

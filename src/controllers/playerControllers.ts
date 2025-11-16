@@ -9,7 +9,7 @@ import { Client } from '../types/client';
 const addPlayer = async (ws: Client, data: unknown) => {
   const { isValid, message } = validatePlayerCredentials(data);
   if (!isValid) {
-    sendErrorMessage(ws, MESSAGE_TYPES_MAP.REGISTER, message ?? ''); // Check if we need to provide index here
+    sendErrorMessage(ws, MESSAGE_TYPES_MAP.REGISTER, message ?? '');
     return;
   }
   const { name, password } = data as PlayerDTO;

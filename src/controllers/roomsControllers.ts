@@ -56,7 +56,7 @@ const addPlayerToRoom = async (
 
   if (updatedRoom && updatedRoom.roomUsers.length === 2) {
     await gameControllers.createGame(clients, data.indexRoom);
-    await roomsRepository.deleteRoom(data.indexRoom);
+    roomsRepository.deleteRoom(data.indexRoom);
     await roomControllers.updateRoom(clients);
   }
 };
