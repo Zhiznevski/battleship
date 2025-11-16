@@ -52,6 +52,10 @@ export const wsServer = (port: number) => {
             await gameControllers.attack(clients, data);
             break;
           }
+
+          case MESSAGE_TYPES_MAP.RANDOM_ATTACK: {
+            await gameControllers.randomAttack(clients, data);
+          }
         }
       } catch (e) {
         console.error(e);

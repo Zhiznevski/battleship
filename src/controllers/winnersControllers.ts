@@ -16,6 +16,11 @@ const getWinners = async (clients: Client[]) => {
   );
 };
 
+const addWinner = async (playerId: string, name: string) => {
+  winnersRepository.addWin(playerId, name);
+};
+
 export const winnersControllers = {
   getWinners,
+  addWinner,
 };

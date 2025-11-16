@@ -81,7 +81,18 @@ class GamesRepository {
     return true;
   }
 
-  // randomAttack(gameId: string, playerId: string) {}
+  randomAttack(gameId: string, playerId: string) {
+    const game = this.getGameById(gameId);
+    if (!game) return;
+    if (game.currentTurn !== playerId) return;
+
+    const boardSize = 10;
+
+    const x = Math.floor(Math.random() * boardSize);
+    const y = Math.floor(Math.random() * boardSize);
+
+    return this.attack(gameId, playerId, x, y);
+  }
 
   attack(gameId: string, playerId: string, x: number, y: number) {
     const game = this.getGameById(gameId);
@@ -103,6 +114,11 @@ class GamesRepository {
         (cell) => cell.x === x && cell.y === y,
       );
       if (hitIndex !== -1) {
+        const alreadyHit = ship.hits.some((h) => h.x === x && h.y === y);
+        if (alreadyHit) {
+          status = 'miss';
+          break;
+        }
         ship.hits.push({ x, y });
         if (ship.hits.length === ship.cells.length) {
           status = 'killed';
@@ -140,10 +156,25 @@ class GamesRepository {
       game.currentTurn = playerId;
     }
 
+    let winner;
+
+    if (status === 'killed') {
+      if (
+        enemy.ships.length > 0 &&
+        enemy.ships.every(
+          (ship) =>
+            ship.cells.length > 0 && ship.hits.length === ship.cells.length,
+        )
+      ) {
+        winner = playerId;
+      }
+    }
+
     return {
       position: { x, y },
       status,
       misses,
+      winner,
     };
   }
 }

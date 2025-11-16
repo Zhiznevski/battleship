@@ -1,5 +1,4 @@
-import { v4 as generateId } from 'uuid';
-import { Player, PlayerDTO } from '../model/player';
+import { Player } from '../model/player';
 
 const players: Player[] = [];
 
