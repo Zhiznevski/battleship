@@ -25,9 +25,8 @@ export const wsServer = (port: number) => {
     ws.on('message', async function handleMessage(rowData) {
       try {
         const msg = JSON.parse(rowData.toString());
-        console.log('received', msg);
         const data = isJSON(msg.data) && JSON.parse(msg.data);
-        if (!msg.type || !messageSet.has(msg.type)) return; //TODO: handle this error and check ТЗ;
+        if (!msg.type || !messageSet.has(msg.type)) return;
         switch (msg.type) {
           case MESSAGE_TYPES_MAP.REGISTER: {
             await playerControllers.addPlayer(ws, data);
@@ -40,16 +39,18 @@ export const wsServer = (port: number) => {
             break;
           }
           case MESSAGE_TYPES_MAP.ADD_USER_TO_ROOM: {
-            const indexRoom = await roomControllers.addPlayerToRoom(ws, data);
-            await roomControllers.updateRoom(clients);
-            if (!indexRoom) return;
-            await gameControllers.createGame(clients, indexRoom)
-            await roomControllers.removeRoom(indexRoom);
+            await roomControllers.addPlayerToRoom(ws, clients, data);
             break;
           }
 
           case MESSAGE_TYPES_MAP.ADD_SHIPS: {
-            await gameControllers.addShips(ws, clients, data)
+            await gameControllers.addShips(clients, data)
+            break;
+          }
+
+          case MESSAGE_TYPES_MAP.ATTACK: {
+            await gameControllers.attack(clients, data)
+            break;
           }
         }
       } catch (e) {

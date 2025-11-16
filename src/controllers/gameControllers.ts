@@ -22,7 +22,7 @@ const createGame = async (clients: Client[], indexRoom: string) => {
   });
 };
 
-const addShips = async (ws: Client, clients: Client[], data: unknown) => {
+const addShips = async (clients: Client[], data: unknown) => {
   const { gameId, ships, indexPlayer } = data as {
     gameId: string;
     ships: Ship[];
@@ -32,8 +32,6 @@ const addShips = async (ws: Client, clients: Client[], data: unknown) => {
   const game = gamesRepository.addShips(gameId, indexPlayer, ships)
   if (!game) return;
   if (!gamesRepository.isGameReady(gameId)) return;
-
-  console.log("we are here");
 
   game.players.forEach(player => {
     const client = clients.find(c => c.id === player.playerId);
@@ -57,8 +55,60 @@ const addShips = async (ws: Client, clients: Client[], data: unknown) => {
   });
 }
 
+const attack = async (clients: Client[], data: unknown) => {
+
+  const { gameId, indexPlayer, x, y } = data as {
+    gameId: string;
+    x: number,
+    y: number,
+    indexPlayer: string;
+  };
+
+  const game = gamesRepository.getGameById(gameId);
+  if (!game) return;
+
+  const attackResult = gamesRepository.attack(gameId, indexPlayer, x, y)
+  if (!attackResult) return;
+  const { currentPlayer, position, status, misses } = attackResult
+
+  game.players.forEach(player => {
+    const client = clients.find(c => c.id === player.playerId);
+    if (!client) return;
+    client.send(prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
+      position: position,
+      currentPlayer: currentPlayer,
+      status: status
+    }))
+
+    if (!misses?.length) return;
+
+    misses.forEach(miss => {
+      client.send(prepareMessage(MESSAGE_TYPES_MAP.ATTACK, {
+        status: "miss",
+        position: miss,
+        currentPlayer: currentPlayer,
+      }))
+    })
+  })
+
+  const currentTurn = gamesRepository.getCurrentTurn(game.gameId);
+
+  game.players.forEach(player => {
+    const client = clients.find(c => c.id === player.playerId);
+    if (!client) return;
+    client.send(
+      prepareMessage(MESSAGE_TYPES_MAP.TURN, {
+        currentPlayer: currentTurn,
+      })
+    );
+  });
+
+
+}
+
 
 export const gameControllers = {
   createGame,
-  addShips
+  addShips,
+  attack,
 };

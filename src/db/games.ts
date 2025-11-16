@@ -37,6 +37,19 @@ class GamesRepository {
     if (!player) return false;
 
     player.ships = ships;
+    ships.forEach((ship, index) => {
+      const { position, type, length, direction } = ship;
+      ship.cells = [];
+      for (let i = 0; i < length; i++) {
+        if (direction) {
+          ship.cells.push({ x: ship.position.x + i, y: ship.position.y })
+        } else {
+          ship.cells.push({ x: ship.position.x, y: ship.position.y + i })
+        }
+      }
+
+      ship.hits = []
+    })
     return game;
   }
 
@@ -68,6 +81,71 @@ class GamesRepository {
     game.currentTurn = playerId;
     return true;
   }
+
+  randomAttack(gameId: string, playerId: string) {
+
+  }
+
+  attack(gameId: string, playerId: string, x: number, y: number) {
+    const game = this.getGameById(gameId);
+
+    if (!game) return;
+    if (game.currentTurn !== playerId) return;
+    const current = game.players.find(p => p.playerId === playerId);
+    const enemy = game.players.find(p => p.playerId !== playerId);
+
+    if (!current || !enemy) return;
+    console.log("enemy", enemy)
+    if (!enemy || !enemy.ships) return;
+
+    let status: "miss" | "shot" | "killed" = "miss";
+    const misses: { x: number; y: number }[] = [];
+
+    for (const ship of enemy.ships) {
+      const hitIndex = ship.cells.findIndex(cell => cell.x === x && cell.y === y);
+      if (hitIndex !== -1) {
+        ship.hits.push({ x, y });
+        if (ship.hits.length === ship.cells.length) {
+          status = "killed";
+
+          ship.cells.forEach(cell => {
+            for (let dx = -1; dx <= 1; dx++) {
+              for (let dy = -1; dy <= 1; dy++) {
+                const nx = cell.x + dx;
+                const ny = cell.y + dy;
+                if (
+                  !ship.cells.some(c => c.x === nx && c.y === ny) &&
+                  !enemy.ships?.some(s => s.hits.some(h => h.x === nx && h.y === ny)) &&
+                  nx >= 0 && ny >= 0 && nx < 10 && ny < 10
+                ) {
+                  misses.push({ x: nx, y: ny });
+                }
+              }
+            }
+          });
+        } else {
+          status = "shot";
+        }
+        break;
+      }
+    }
+
+    if (status === "miss") {
+      game.currentTurn = enemy.playerId;
+      console.log(enemy.playerId)
+    } else {
+      game.currentTurn = playerId;
+      console.log(playerId)
+    }
+
+    return {
+      position: { x, y },
+      currentPlayer: game.currentTurn,
+      status,
+      misses
+    };
+  }
+
 }
 
 export const gamesRepository = new GamesRepository(games);

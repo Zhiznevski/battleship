@@ -18,4 +18,6 @@ export type Ship = {
   direction: boolean,
   length: number,
   type: "small" | "medium" | "large" | "huge",
+  cells: { x: number, y: number }[]
+  hits: { x: number, y: number }[] // 'x_y'
 }
