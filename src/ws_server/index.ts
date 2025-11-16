@@ -1,5 +1,4 @@
 import { WebSocketServer } from 'ws';
-import { v4 as generateId } from 'uuid';
 import { MESSAGE_TYPES_MAP, messageSet } from '../consts/messages';
 import { roomControllers } from '../controllers/roomsControllers';
 import { Client } from '../types/client';
@@ -7,16 +6,14 @@ import { isJSON } from '../utils/isJson';
 import { playerControllers } from '../controllers/playerControllers';
 import { gameControllers } from '../controllers/gameControllers';
 import { winnersControllers } from '../controllers/winnersControllers';
-
-const PORT = 3000;
+import { generateId } from '../utils/generateId';
 
 let clients: Client[] = [];
 
 export const wsServer = (port: number) => {
   const wss = new WebSocketServer({ port: port });
-
+  console.log(`WS server started on port ${port}`);
   wss.on('connection', function handleConnection(ws: Client) {
-    console.log(`ws server is started on port ${PORT}`);
     ws.id = generateId();
     clients.push(ws);
 
@@ -25,6 +22,7 @@ export const wsServer = (port: number) => {
     ws.on('message', async function handleMessage(rowData) {
       try {
         const msg = JSON.parse(rowData.toString());
+        console.log('Received:', msg);
         const data = isJSON(msg.data) && JSON.parse(msg.data);
         if (!msg.type || !messageSet.has(msg.type)) return;
         switch (msg.type) {
@@ -55,6 +53,7 @@ export const wsServer = (port: number) => {
 
           case MESSAGE_TYPES_MAP.RANDOM_ATTACK: {
             await gameControllers.randomAttack(clients, data);
+            break;
           }
         }
       } catch (e) {

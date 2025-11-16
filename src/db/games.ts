@@ -1,5 +1,5 @@
-import { v4 as generateId } from 'uuid';
 import { Game, Ship } from '../model/game';
+import { generateId } from '../utils/generateId';
 
 const games: Game[] = [];
 

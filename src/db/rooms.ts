@@ -1,5 +1,5 @@
-import { v4 as generateId } from 'uuid';
 import { Room, RoomUser } from '../model/room';
+import { generateId } from '../utils/generateId';
 
 const rooms: Room[] = [];
 
