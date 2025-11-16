@@ -39,7 +39,6 @@ export const wsServer = (port: number) => {
             await roomControllers.createRoom(ws);
             break;
           }
-
           case MESSAGE_TYPES_MAP.ADD_USER_TO_ROOM: {
             const indexRoom = await roomControllers.addPlayerToRoom(ws, data);
             await roomControllers.updateRoom(clients);
@@ -47,6 +46,10 @@ export const wsServer = (port: number) => {
             await gameControllers.createGame(clients, indexRoom)
             await roomControllers.removeRoom(indexRoom);
             break;
+          }
+
+          case MESSAGE_TYPES_MAP.ADD_SHIPS: {
+            await gameControllers.addShips(ws, clients, data)
           }
         }
       } catch (e) {
